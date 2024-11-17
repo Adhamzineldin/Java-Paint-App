@@ -46,7 +46,7 @@ public class GUI extends JFrame {
 
     public void createToolbar() {
         JToolBar toolbar = new JToolBar();
-        String[] shapeOptions = {"Rectangle", "Circle", "Pencil", "Eraser"};
+        String[] shapeOptions = {"Rectangle", "Circle", "Triangle" ,"Pencil", "Eraser"};
         JComboBox<String> shapeSelector = new JComboBox<>(shapeOptions);
 
         shapeSelector.addActionListener(e -> {
@@ -154,11 +154,7 @@ public class GUI extends JFrame {
                 if (shape.equals("Pencil") || shape.equals("Eraser")) {
                     endx = e.getX();
                     endy = e.getY();
-
-
                     currentShape.addPoint(endx, endy);
-
-
                     startx = endx;
                     starty = endy;
                     drawingArea.repaint();

@@ -5,10 +5,10 @@ import java.awt.*;
 public class Circle extends Shape {
 
 
-    final int x = Math.min(x1, x2);
-    final int y = Math.min(y1, y2);
-    final int width = Math.abs(x1 - x2);
-    final int height = Math.abs(y1 - y2);
+    final int x = Math.min(getX1(), getX2());
+    final int y = Math.min(getY1(), getY2());
+    final int width = Math.abs(getX1() - getX2());
+    final int height = Math.abs(getY1() - getY2());
 
 
     public Circle(int x1, int y1, int x2, int y2, boolean isFilled, boolean isDotted, Color color) {

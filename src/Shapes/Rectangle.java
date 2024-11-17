@@ -3,10 +3,10 @@ package Shapes;
 import java.awt.*;
 
 public class Rectangle extends Shape {
-    final int x = Math.min(x1, x2);
-    final int y = Math.min(y1, y2);
-    final int width = Math.abs(x1 - x2);
-    final int height = Math.abs(y1 - y2);
+    final int x = Math.min(getX1(), getX2());
+    final int y = Math.min(getY1(), getY2());
+    final int width = Math.abs(getX1() - getX2());
+    final int height = Math.abs(getY1() - getY2());
 
     public Rectangle(int x1, int y1, int x2, int y2, boolean isFilled, boolean isDotted, Color color) {
         super(x1, y1, x2, y2, isFilled, isDotted, color);

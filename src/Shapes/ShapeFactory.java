@@ -9,6 +9,8 @@ public class ShapeFactory {
                 return new Shapes.Rectangle(startx, starty, endx, endy, isFilled, isDotted, color);
             case "Circle":
                 return new Shapes.Circle(startx, starty, endx, endy, isFilled, isDotted, color);
+            case "Triangle":
+                return new Shapes.Triangle(startx, starty, endx, endy, isFilled, isDotted, color);
             case "Pencil":
                 return new PathShape(startx, starty, isFilled, isDotted, color);
             case "Eraser":
