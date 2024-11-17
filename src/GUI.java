@@ -4,21 +4,22 @@ import Shapes.ShapeFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class GUI extends JFrame {
 
     ArrayList<Shape> shapes = new ArrayList<>();
-    ArrayList<Shape> lines = new ArrayList<>(); // Array to store the pencil drawing
+    ArrayList<Shape> lines = new ArrayList<>();
+    Stack<Shape> undoStack = new Stack<>();
     Color color = Color.BLACK;
     boolean isFilled = false;
     boolean isDotted = false;
     String shape = "Rectangle";
     int startx, starty, endx, endy;
     Shape currentShape = null;
+    JToolBar toolbar;
 
     private class DrawingArea extends JPanel {
         @Override
@@ -29,7 +30,7 @@ public class GUI extends JFrame {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             g.setColor(Color.WHITE);
-            g.fillRect(0, 0, getWidth(), getHeight());  // Clear the drawing area
+            g.fillRect(0, 0, getWidth(), getHeight());
 
             for (Shape shape : shapes) {
                 shape.paintShape(g);
@@ -44,14 +45,32 @@ public class GUI extends JFrame {
         }
     }
 
+    private void updateToolbarButtons(JToolBar toolbar) {
+    boolean enableUndo = !shapes.isEmpty();
+    boolean enableRedo = !undoStack.isEmpty();
+
+    for (Component component : toolbar.getComponents()) {
+        if (component instanceof JButton) {
+            JButton button = (JButton) component;
+            if (button.getText().equals("Undo")) {
+                button.setEnabled(enableUndo);
+            } else if (button.getText().equals("Redo")) {
+                button.setEnabled(enableRedo);
+            }
+        }
+    }
+}
+
     public void createToolbar() {
-        JToolBar toolbar = new JToolBar();
+        toolbar = new JToolBar();
         String[] shapeOptions = {"Rectangle", "Circle", "Triangle" ,"Pencil", "Eraser"};
         JComboBox<String> shapeSelector = new JComboBox<>(shapeOptions);
 
         shapeSelector.addActionListener(e -> {
             shape = (String) shapeSelector.getSelectedItem();
             boolean enableFilled = !shape.equals("Pencil");
+            boolean enableUndo = !shapes.isEmpty();
+            boolean enableRedo = !undoStack.isEmpty();
             for (Component component : toolbar.getComponents()) {
                 if (component instanceof JCheckBox && ((JCheckBox) component).getText().equals("Filled")) {
                     component.setEnabled(enableFilled);
@@ -77,13 +96,26 @@ public class GUI extends JFrame {
         clearButton.addActionListener(e -> {
             shapes.clear();
             lines.clear();
+            updateToolbarButtons(toolbar);
             repaint();
         });
 
         JButton undoButton = new JButton("Undo");
         undoButton.addActionListener(e -> {
             if (!shapes.isEmpty()) {
-                shapes.remove(shapes.size() - 1);
+                undoStack.push(shapes.getLast());
+                shapes.removeLast();
+                updateToolbarButtons(toolbar);
+                repaint();
+            }
+        });
+
+
+        JButton redoButton = new JButton("Redo");
+        redoButton.addActionListener(e -> {
+            if (!undoStack.isEmpty()) {
+                shapes.add(undoStack.pop());
+                updateToolbarButtons(toolbar);
                 repaint();
             }
         });
@@ -95,6 +127,7 @@ public class GUI extends JFrame {
         toolbar.add(dottedCheckbox);
         toolbar.add(clearButton);
         toolbar.add(undoButton);
+        toolbar.add(redoButton);
 
         add(toolbar, BorderLayout.NORTH);
     }
@@ -136,14 +169,17 @@ public class GUI extends JFrame {
                     shapes.add(currentShape);
                     lines.clear();
                     currentShape = null;
+                    undoStack.clear();
                 } else {
                     endx = e.getX();
                     endy = e.getY();
                     currentShape = ShapeFactory.createShape(shape, startx, starty, endx, endy, isFilled, isDotted, color);
                     shapes.add(currentShape);
                     currentShape = null;
+                    undoStack.clear();
 
                 }
+                updateToolbarButtons(toolbar);
                 drawingArea.repaint();
             }
         });
@@ -168,5 +204,6 @@ public class GUI extends JFrame {
         });
 
         createToolbar();
+        updateToolbarButtons(toolbar);
     }
 }
