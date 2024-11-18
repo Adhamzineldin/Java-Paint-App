@@ -199,7 +199,10 @@ public class GUI extends JFrame {
                 if (shape.equals("Pencil") || shape.equals("Eraser")) {
                     endx = e.getX();
                     endy = e.getY();
+
                     currentShape.addPoint(endx, endy);
+
+
                     startx = endx;
                     starty = endy;
                     drawingArea.repaint();
