@@ -11,7 +11,7 @@ import java.util.Stack;
 public class GUI extends JFrame {
 
     ArrayList<Shape> shapes = new ArrayList<>();
-    ArrayList<Shape> lines = new ArrayList<>();
+
     Stack<Shape> undoStack = new Stack<>();
     Color color = Color.BLACK;
     boolean isFilled = false;
@@ -35,9 +35,7 @@ public class GUI extends JFrame {
             for (Shape shape : shapes) {
                 shape.paintShape(g);
             }
-            for (Shape line : lines) {
-                line.paintShape(g);
-            }
+
             if (currentShape != null) {
                 currentShape.paintShape(g);
             }
@@ -46,19 +44,19 @@ public class GUI extends JFrame {
     }
 
     private void updateToolbarButtons(JToolBar toolbar) {
-    boolean enableUndo = !shapes.isEmpty();
-    boolean enableRedo = !undoStack.isEmpty();
+        boolean enableUndo = !shapes.isEmpty();
+        boolean enableRedo = !undoStack.isEmpty();
 
-    for (Component component : toolbar.getComponents()) {
-        if (component instanceof JButton) {
-            JButton button = (JButton) component;
-            if (button.getText().equals("Undo")) {
-                button.setEnabled(enableUndo);
-            } else if (button.getText().equals("Redo")) {
-                button.setEnabled(enableRedo);
+        for (Component component : toolbar.getComponents()) {
+            if (component instanceof JButton) {
+                JButton button = (JButton) component;
+                if (button.getText().equals("Undo")) {
+                    button.setEnabled(enableUndo);
+                } else if (button.getText().equals("Redo")) {
+                    button.setEnabled(enableRedo);
+                }
             }
         }
-    }
 }
 
     public void createToolbar() {
@@ -87,15 +85,31 @@ public class GUI extends JFrame {
         });
 
         JCheckBox filledCheckbox = new JCheckBox("Filled");
-        filledCheckbox.addActionListener(e -> isFilled = filledCheckbox.isSelected());
-
         JCheckBox dottedCheckbox = new JCheckBox("Dotted");
-        dottedCheckbox.addActionListener(e -> isDotted = dottedCheckbox.isSelected());
+
+
+         filledCheckbox.addActionListener(e -> {
+            isFilled = filledCheckbox.isSelected();
+            if (isFilled) {
+                dottedCheckbox.setSelected(false);
+                isDotted = false;
+            }
+        });
+
+
+        dottedCheckbox.addActionListener(e -> {
+            isDotted = dottedCheckbox.isSelected();
+            if (isDotted) {
+                filledCheckbox.setSelected(false);
+                isFilled = false;
+            }
+        });
+
 
         JButton clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> {
             shapes.clear();
-            lines.clear();
+            undoStack.clear();
             updateToolbarButtons(toolbar);
             repaint();
         });
@@ -149,14 +163,10 @@ public class GUI extends JFrame {
                 startx = e.getX();
                 starty = e.getY();
 
-
                 currentShape = ShapeFactory.createShape(shape, startx, starty, startx, starty, isFilled, isDotted, color);
                 if (shape.equals("Pencil") || shape.equals("Eraser")) {
-                    lines.add(currentShape);
-                } else {
-                    shapes.add(currentShape);
+                    currentShape.addPoint(startx, starty);
                 }
-
 
             }
 
@@ -167,7 +177,6 @@ public class GUI extends JFrame {
                     endy = e.getY();
                     currentShape.addPoint(endx, endy);
                     shapes.add(currentShape);
-                    lines.clear();
                     currentShape = null;
                     undoStack.clear();
                 } else {
